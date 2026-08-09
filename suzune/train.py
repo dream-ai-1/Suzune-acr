@@ -31,6 +31,9 @@ def main(cfg: DictConfig):
     print(f"Suzune Model Instantiated with {sum(p.numel() for p in model.parameters()):,} parameters!")
     print(f"Checkpoints and logs will be saved to: {training_dir}")
     print("Ready for GPU Training!")
+    
+    # 3. Start Training!
+    trainer.fit(model)
 
 
 if __name__ == "__main__":
