@@ -10,13 +10,15 @@ readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
     "torch>=2.0.0",
+    "torchaudio>=2.0.0",
     "lightning>=2.0.0",
     "omegaconf>=2.1.0",
     "soundfile>=0.12.0",
     "sentencepiece>=0.1.99",
     "librosa>=0.10.0",
     "datasets>=2.16.0",
-    "tqdm>=4.66.0"
+    "tqdm>=4.66.0",
+    "torchcodec"
 ]
 authors = [{ name = "Suzune AI", email = "suzune@example.com" }]
 
