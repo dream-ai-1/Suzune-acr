@@ -1,0 +1,86 @@
+# Configuration for Standalone Suzune Nano (~25M Parameters) - Bilingual (English + Hindi) ASR
+name: "Suzune-Nano-CTC-BPE"
+
+model:
+  _target_: suzune.models.SuzuneEncDecCTCModelBPE
+  sample_rate: 16000
+  log_prediction: true
+  ctc_reduction: 'mean_volume'
+  skip_nan_grad: false
+
+  train_ds:
+    manifest_filepath: ???
+    sample_rate: ${model.sample_rate}
+    batch_size: 16
+    shuffle: true
+    num_workers: 4
+    pin_memory: true
+    max_duration: 16.7
+    min_duration: 0.1
+    is_tarred: false
+
+  validation_ds:
+    manifest_filepath: ???
+    sample_rate: ${model.sample_rate}
+    batch_size: 16
+    shuffle: false
+    num_workers: 4
+
+  test_ds:
+    manifest_filepath: null
+    sample_rate: ${model.sample_rate}
+    batch_size: 16
+    shuffle: false
+    num_workers: 4
+
+  tokenizer:
+    dir: ???
+    type: bpe
+
+  preprocessor:
+    _target_: suzune.audio.SuzuneAudioToMelSpectrogramPreprocessor
+    sample_rate: ${model.sample_rate}
+    normalize: "per_feature"
+    window_size: 0.025
+    window_stride: 0.01
+    features: 80
+    n_fft: 512
+
+  spec_augment:
+    _target_: suzune.audio.SuzuneSpectrogramAugmentation
+    rect_masks: 5
+    rect_time: 120
+    rect_freq: 50
+
+  encoder:
+    _target_: suzune.modules.SuzuneEncoder
+    feat_in: 80
+    n_layers: 12
+    d_model: 256
+    n_heads: 4
+    conv_kernel_size: 9
+    dropout: 0.1
+
+  decoder:
+    _target_: suzune.modules.SuzuneDecoder
+    feat_in: 256
+    num_classes: 1024
+
+  loss:
+    _target_: suzune.losses.SuzuneCTCLoss
+
+  optim:
+    name: adamw
+    lr: 2e-3
+    between_batches: false
+    weight_decay: 1e-3
+    sched:
+      name: CosineAnnealing
+      warmup_steps: 1000
+      min_lr: 1e-5
+
+trainer:
+  devices: 1
+  accelerator: "gpu"
+  max_epochs: 50
+  precision: "16-mixed"
