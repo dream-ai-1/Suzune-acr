@@ -31,8 +31,8 @@ class SuzuneEncDecCTCModelBPE(SuzuneModelPT):
         
         # Tokenizer Setup
         tokenizer_dir = self._cfg.get("tokenizer", {}).get("dir", None)
-        if tokenizer_dir and hasattr(tokenizer_dir, "model_path"):
-            self.tokenizer = SuzuneSentencePieceTokenizer(tokenizer_dir.model_path)
+        if tokenizer_dir:
+            self.tokenizer = SuzuneSentencePieceTokenizer(str(tokenizer_dir))
         else:
             self.tokenizer = None
             
