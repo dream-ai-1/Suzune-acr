@@ -63,7 +63,7 @@ if __name__ == "__main__":
     try:
         # People's speech is very large, loading with streaming
         ps_ds = load_dataset("MLCommons/peoples_speech", "clean", split="train", streaming=True)
-        save_manifest(ps_ds, "english_ps_manifest.json", "data/english_ps_audio", max_rows=80000)
+        save_manifest(ps_ds, "english_ps_manifest.json", "data/english_ps_audio", max_rows=3000)
     except Exception as e:
         print(f"Error loading People's Speech: {e}")
         
