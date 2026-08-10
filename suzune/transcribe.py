@@ -33,6 +33,8 @@ def ctc_decode(logits: torch.Tensor, tokenizer: SuzuneSentencePieceTokenizer) ->
 def transcribe(audio_path: str, checkpoint_path: str, tokenizer_path: str):
     print(f"Loading audio: {audio_path}")
     audio, sr = sf.read(audio_path, dtype="float32")
+    if audio.ndim > 1:
+        audio = audio.mean(axis=1) # Convert stereo to mono
     if sr != 16000:
         audio = librosa.resample(y=audio, orig_sr=sr, target_sr=16000)
         sr = 16000
@@ -46,8 +48,21 @@ def transcribe(audio_path: str, checkpoint_path: str, tokenizer_path: str):
     
     if os.path.exists(checkpoint_path):
         ckpt = torch.load(checkpoint_path, map_location="cpu")
-        model.load_state_dict(ckpt["state_dict"], strict=False)
+        state_dict = ckpt.get("state_dict", ckpt)
+        new_state_dict = {}
+        for k, v in state_dict.items():
+            key = k
+            if key.startswith("model."):
+                key = key[6:]
+            if key.startswith("_orig_mod."):
+                key = key[10:]
+            new_state_dict[key] = v
+        res = model.load_state_dict(new_state_dict, strict=False)
         print(f"Loaded weights from {checkpoint_path}")
+        if res.missing_keys:
+            print(f"Missing keys ({len(res.missing_keys)}): {res.missing_keys[:3]}...")
+    else:
+        print(f"WARNING: Checkpoint {checkpoint_path} not found!")
 
     tokenizer = SuzuneSentencePieceTokenizer(tokenizer_path)
     model.eval()
