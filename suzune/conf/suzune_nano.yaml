@@ -1,5 +1,6 @@
 # Configuration for Standalone Suzune Nano (~25M Parameters) - Bilingual (English + Hindi) ASR
 name: "Suzune-Nano-CTC-BPE"
+ckpt_path: null
 
 model:
   _target_: suzune.models.SuzuneEncDecCTCModelBPE

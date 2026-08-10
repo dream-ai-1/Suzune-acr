@@ -32,8 +32,15 @@ def main(cfg: DictConfig):
     print(f"Checkpoints and logs will be saved to: {training_dir}")
     print("Ready for GPU Training!")
     
-    # 3. Start Training (Resume from checkpoint if provided)
+    # 3. Start Training (Auto-detect checkpoint if available or use provided ckpt_path)
     ckpt_path = cfg.get("ckpt_path", None)
+    if not ckpt_path:
+        import glob
+        ckpts = sorted(glob.glob(os.path.join(training_dir, "lightning_logs", "*", "checkpoints", "*.ckpt")))
+        if ckpts:
+            ckpt_path = ckpts[-1]
+            print(f"🔍 Auto-detected latest checkpoint: {ckpt_path}")
+
     if ckpt_path and os.path.exists(ckpt_path):
         print(f"🔄 Resuming training from checkpoint: {ckpt_path}")
         trainer.fit(model, ckpt_path=ckpt_path)
