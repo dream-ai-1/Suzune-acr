@@ -32,8 +32,13 @@ def main(cfg: DictConfig):
     print(f"Checkpoints and logs will be saved to: {training_dir}")
     print("Ready for GPU Training!")
     
-    # 3. Start Training!
-    trainer.fit(model)
+    # 3. Start Training (Resume from checkpoint if provided)
+    ckpt_path = cfg.get("ckpt_path", None)
+    if ckpt_path and os.path.exists(ckpt_path):
+        print(f"🔄 Resuming training from checkpoint: {ckpt_path}")
+        trainer.fit(model, ckpt_path=ckpt_path)
+    else:
+        trainer.fit(model)
 
 
 if __name__ == "__main__":
