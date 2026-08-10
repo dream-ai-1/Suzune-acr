@@ -83,5 +83,5 @@ model:
 trainer:
   devices: 1
   accelerator: "gpu"
-  max_epochs: 150
+  max_epochs: 112
   precision: "16-mixed"
