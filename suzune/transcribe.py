@@ -15,17 +15,20 @@ from suzune.models.suzune_ctc_bpe import SuzuneEncDecCTCModelBPE
 from suzune.tokenizer.bpe_tokenizer import SuzuneSentencePieceTokenizer
 
 
-def ctc_decode(logits: torch.Tensor, tokenizer: SuzuneSentencePieceTokenizer) -> str:
+def forced_decode(logits: torch.Tensor, tokenizer: SuzuneSentencePieceTokenizer) -> str:
     """
-    Greedy CTC Decoding: Takes logits (T, Vocab), performs argmax, removes consecutive duplicates and blank (0) tokens.
+    Forced CTC Decoding: Suppresses the CTC blank token (index 0) by setting its logit to -1e9,
+    forcing the model to output the most likely non-blank character/subword sequence.
     """
-    preds = torch.argmax(logits, dim=-1).cpu().numpy()
+    logits_copy = logits.clone()
+    logits_copy[:, 0] = -1e9 
+    preds = torch.argmax(logits_copy, dim=-1).cpu().numpy()
+    
     dedup = []
     prev = None
     for p in preds:
         if p != prev:
-            if p != 0: # 0 is CTC blank token
-                dedup.append(int(p))
+            dedup.append(int(p))
             prev = p
     return tokenizer.ids_to_text(dedup)
 
@@ -69,12 +72,15 @@ def transcribe(audio_path: str, checkpoint_path: str, tokenizer_path: str):
 
     with torch.no_grad():
         logits, _ = model(audio_tensor, audio_len)
-        text = ctc_decode(logits[0], tokenizer)
+        text_standard = ctc_decode(logits[0], tokenizer)
+        text_forced = forced_decode(logits[0], tokenizer)
 
-    print(f"\n--- Transcribed Text ---")
-    print(text)
-    print("------------------------\n")
-    return text
+    print(f"\n--- Transcribed Text (Standard CTC) ---")
+    print(text_standard if text_standard else "(Blank - Model preferred blank tokens)")
+    print(f"\n--- Transcribed Text (Forced Non-Blank Decoding) ---")
+    print(text_forced)
+    print("-------------------------------------------\n")
+    return text_standard
 
 
 if __name__ == "__main__":
