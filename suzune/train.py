@@ -36,8 +36,9 @@ def main(cfg: DictConfig):
     ckpt_path = cfg.get("ckpt_path", None)
     if not ckpt_path:
         import glob
-        ckpts = sorted(glob.glob(os.path.join(training_dir, "lightning_logs", "*", "checkpoints", "*.ckpt")))
+        ckpts = glob.glob(os.path.join(training_dir, "lightning_logs", "*", "checkpoints", "*.ckpt"))
         if ckpts:
+            ckpts = sorted(ckpts, key=os.path.getmtime)
             ckpt_path = ckpts[-1]
             print(f"🔍 Auto-detected latest checkpoint: {ckpt_path}")
 
