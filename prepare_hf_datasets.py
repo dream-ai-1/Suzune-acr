@@ -48,7 +48,7 @@ if __name__ == "__main__":
     try:
         # Kathbath is often gated or large, we'll stream or load a small part for demo, but users can run it fully
         kb_ds = load_dataset("ai4bharat/Kathbath", "hindi", split="train", streaming=True, token=True)
-        save_manifest(kb_ds, "hindi_manifest.json", "data/hindi_audio", max_rows=3000) # Remove max_rows for full
+        save_manifest(kb_ds, "hindi_manifest.json", "data/hindi_audio", max_rows=10000) # Remove max_rows for full
     except Exception as e:
         print(f"Error loading Kathbath: {e}")
 
@@ -63,7 +63,7 @@ if __name__ == "__main__":
     try:
         # People's speech is very large, loading with streaming
         ps_ds = load_dataset("MLCommons/peoples_speech", "clean", split="train", streaming=True)
-        save_manifest(ps_ds, "english_ps_manifest.json", "data/english_ps_audio", max_rows=3000)
+        save_manifest(ps_ds, "english_ps_manifest.json", "data/english_ps_audio", max_rows=25000)
     except Exception as e:
         print(f"Error loading People's Speech: {e}")
         
